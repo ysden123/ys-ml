@@ -1,2 +1,0 @@
-# ys-ml
-Playing with Machine Learning
