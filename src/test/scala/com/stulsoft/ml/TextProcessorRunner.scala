@@ -16,6 +16,6 @@ object TextProcessorRunner extends LazyLogging:
 
     DBService.findHighestScore() match
       case Some((word1:Word, following:Following, word2:Word)) =>
-        logger.info("Pairs with highest score {} -> {} -> {}", word1.name, following.score, word2.name)
+        logger.info("Pairs with highest score {} -{}-> {}", word1.name, following.score, word2.name)
       case _ =>
         logger.info("Nothing was found")

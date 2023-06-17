@@ -9,7 +9,6 @@ import com.typesafe.scalalogging.LazyLogging
 
 object TextProcessor extends LazyLogging:
   def extractWordsFromSentence(text: String): Array[String] =
-    logger.debug("extractWordsFromSentence text: {}", text)
     text.split("""[ ,()\[\];:&".#-]""").toList
       .map(w => w.replaceAll(""""""", ""))
       .map(w => w.replaceAll("""«""", ""))
@@ -21,7 +20,6 @@ object TextProcessor extends LazyLogging:
       .toArray
 
   def processSentence(sentence:String):Unit=
-    logger.debug("Processing sentence: {}", sentence)
     val words = extractWordsFromSentence(sentence)
     if words.length > 1 then
       for (i <- 0 until words.length - 1){
@@ -29,7 +27,6 @@ object TextProcessor extends LazyLogging:
       }
 
   def processText(filename:String):Unit=
-    logger.info("==>processText {}", filename)
     val source = Source.fromFile(filename)
     val lines = source.getLines().toSeq
     source.close()
