@@ -16,7 +16,7 @@ object DBService extends StrictLogging:
         session.executeWrite(tc => {
           val clearQuery = "MATCH(n) DETACH DELETE(n)"
           logger.info("Clearing DB (delete all nodes")
-          val result = tc.run(clearQuery)
+          val result = tc.run(clearQuery).consume()
         })
       }
     } match
@@ -30,7 +30,7 @@ object DBService extends StrictLogging:
         session.executeWrite(tc => {
           logger.info("Creating constraint")
           val createConstrainQuery = "CREATE CONSTRAINT word_name IF NOT EXISTS FOR (w:Word) REQUIRE w.name IS UNIQUE"
-          tc.run(createConstrainQuery)
+          tc.run(createConstrainQuery).consume()
         })
       }
     } match
@@ -46,7 +46,7 @@ object DBService extends StrictLogging:
                |MERGE (w1: $word1)
                |MERGE (w2: $word2)
                |""".stripMargin
-          tc.run(connectQuery)
+          tc.run(connectQuery).consume()
         })
 
         session.executeWrite(tc =>
@@ -59,7 +59,7 @@ object DBService extends StrictLogging:
                  |WHERE w1.name = '${word1.name}' AND w2.name = '${word2.name}'
                  |SET r.score = r.score + 1
                  |""".stripMargin
-            tc.run(query)
+            tc.run(query).consume()
           else
             val query =
               s"""
@@ -69,19 +69,8 @@ object DBService extends StrictLogging:
                  |WHERE w1.name = '${word1.name}' AND w2.name = '${word2.name}'
                  |CREATE (w1) -[:Following {score: 1}]->(w2)
                  |""".stripMargin
-            tc.run(query)
+            tc.run(query).consume()
         )
-
-        /*
-                session.executeRead(tc => {
-                  val query = s"MATCH (w1:Word {name: '${word1.name}'}) -[r:Following] ->(w2:Word {name: '${word2.name}'}) RETURN r"
-                  tc.run(query)
-                    .list()
-                    .asScala
-                    .map(record => Following.fromValue(record.get("r")))
-                    .foreach(following => logger.info("{}", following))
-                })
-        */
       }
     } match
       case Success(_) =>
@@ -100,7 +89,7 @@ object DBService extends StrictLogging:
                |ORDER BY r.score DESC
                |LIMIT 1
                |""".stripMargin
-          val result=tc.run(query)
+          val result = tc.run(query)
           if result.hasNext then
             bestWord = Some(Word.fromValue(result.next().get("w")))
         })
@@ -110,8 +99,8 @@ object DBService extends StrictLogging:
       case Failure(exception) => logger.error(exception.getMessage, exception)
     bestWord
 
-  def findHighestScore(): Option[(Word,Following,Word)] =
-    var highestPair: Option[(Word,Following,Word)] = None
+  def findHighestScore(): Option[(Word, Following, Word)] =
+    var highestPair: Option[(Word, Following, Word)] = None
     Using(SessionManager.session()) {
       session => {
         session.executeRead(tc => {
@@ -127,7 +116,7 @@ object DBService extends StrictLogging:
             val following = Following.fromValue(record.get("r"))
             val word1 = Word.fromValue(record.get("w1"))
             val word2 = Word.fromValue(record.get("w2"))
-              highestPair=Some((word1, following, word2))
+            highestPair = Some((word1, following, word2))
         })
       }
     }

@@ -8,7 +8,7 @@ lazy val root = (project in file("."))
     name := "ys-ml",
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.4.7",
-    libraryDependencies += "org.neo4j.driver" % "neo4j-java-driver" % "5.6.0",
+    libraryDependencies += "org.neo4j.driver" % "neo4j-java-driver" % "5.9.0",
 
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.15" % Test
   )
